@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <title>Basics</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+
+    <!-- VERTEX SHADER -->
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      attribute vec2 position;
+      void main() {
+         gl_Position = vec4(position, 0, 1);
+      }
+    </script>
+
+    <!-- FRAGMENT SHADER -->
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform vec4 color;
+      void main() {
+         gl_FragColor = color;
+      }
+    </script>
+
+    <!-- MAIN SCRIPT -->
+    <script src="./script.js"></script>
+  </body>
+</html>

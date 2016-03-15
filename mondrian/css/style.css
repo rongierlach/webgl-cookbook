@@ -1,0 +1,73 @@
+body {
+  font-family: "Helvetica", sans-serif;
+  text-transform: lowercase;
+  color: #282828;
+  background: #DEDEE0 url("http://www.photos-public-domain.com/wp-content/uploads/2011/04/white-canvas-fabric-texture.jpg") no-repeat center center fixed;
+  background-size: cover;
+}
+
+h1 {
+  font-size: 2.5em;
+  margin-bottom: 0.1em;
+}
+
+canvas {
+  border: 10px solid #282828;
+}
+
+.container {
+  width: 420px;
+  margin: auto auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+#overlay {
+  border: 10px solid #282828;
+  position: fixed;
+  top: 76px;
+  left: 0;
+}
+
+menu.controls {
+  text-align: left;
+  margin-top: 0.3em;
+  padding-left: 0;
+  width: 100;
+}
+menu.controls a {
+  display: inline-block;
+}
+menu.controls a:nth-child(2) {
+  float: right;
+}
+
+a:link, a:visited {
+  color: #282828;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 2em;
+  padding: 0.4em 0;
+  text-align: center;
+  width: 185px;
+  border: 10px solid #282828;
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+  transition: 0.3s;
+}
+
+a#random:hover {
+  background: #B63320;
+  color: #D3C644;
+}
+
+a#download:hover {
+  background: #203388;
+  color: #D3C644;
+}

@@ -1,0 +1,64 @@
+@import bourbon
+  
+$red: #B63320
+$yellow: #D3C644
+$blue: #203388
+$black: #282828
+$white: #DEDEE0
+
+body
+  font-family: 'Helvetica', sans-serif
+  text-transform: lowercase
+  color: $black
+  background: $white url('http://www.photos-public-domain.com/wp-content/uploads/2011/04/white-canvas-fabric-texture.jpg') no-repeat center center fixed
+  background-size: cover
+
+h1
+  font-size: 2.5em
+  margin-bottom: .1em
+
+canvas
+  border: 10px solid $black
+  
+.container
+  width: 420px
+  margin: auto auto
+  position: absolute
+  top: 50%
+  left: 50%
+  +transform(translate(-50%, -50%))
+    
+#overlay
+  border: 10px solid $black
+  position: fixed
+  top: 76px
+  left: 0
+  
+menu.controls
+  text-align: left
+  margin-top: .3em
+  padding-left: 0
+  width: 100
+  a
+    display: inline-block
+    &:nth-child(2)
+      float: right
+  
+a:link, a:visited
+  color: $black
+  text-decoration: none
+  font-weight: bold
+  font-size: 2em
+  padding: .4em 0 //1.3em
+  text-align: center
+  width: 185px
+  border: 10px solid $black
+  +transition(0.3s) 
+  
+a#random:hover
+  background: $red
+  color: $yellow
+
+a#download:hover
+  background: $blue
+  color: $yellow

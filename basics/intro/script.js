@@ -1,13 +1,19 @@
-window.onload = main
+window.onload = main;
+window.onresize = resizeCanvas;
 
 function main() {
   render()
 }
 
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
 function render() {
   /* Canvas & Context
   ** ************************ */
-  var canvas = document.createElement('canvas');
+  canvas = document.createElement('canvas');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   document.body.appendChild(canvas);

@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <title>Basics</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+
+    <!-- VERTEX SHADER -->
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      attribute vec2 position;
+
+      uniform vec2 resolution;
+
+      void main() {
+        // convert the rectangle from pixels to 0.0 to 1.0
+        vec2 zeroToOne = position / resolution;
+
+        // convert from 0->1 to 0->2
+        vec2 zeroToTwo = zeroToOne * 2.0;
+
+        // convert from 0->2 to -1->+1 (clipspace)
+        vec2 clipSpace = zeroToTwo - 1.0;
+
+        // flip y origin to top left
+        vec2 clipSpaceFlipY = clipSpace * vec2(1, -1);
+
+        gl_Position = vec4(clipSpaceFlipY, 0, 1);
+      }
+    </script>
+
+    <!-- FRAGMENT SHADER -->
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform vec4 color;
+      void main() {
+         gl_FragColor = color;
+      }
+    </script>
+
+    <!-- MAIN SCRIPT -->
+    <script src="./script.js"></script>
+  </body>
+</html>

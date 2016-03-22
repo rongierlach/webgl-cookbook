@@ -76,8 +76,10 @@ function matrixMultiply(/* args */) {
     return matrixMultiply.apply(this, args);
 
   } else if (args.length == 0) {
-    return [1, 1, 1,   1, 1, 1,   1, 1, 1];
-
+    // identity matrix
+    return [1, 0, 0,
+            0, 1, 0,
+            0, 0, 1];
   } else {
     return args[0];
   }

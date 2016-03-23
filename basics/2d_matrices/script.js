@@ -43,6 +43,14 @@ function getScaleMatrix() {
   ];
 }
 
+function getProjectionMatrix() {
+  return [
+    2 / canvas.width, 0, 0,
+    0, -2 / canvas.height, 0,
+    -1, 1, 1
+  ];
+}
+
 function matrixMultiply(/* args */) {
   // *arguments* does not inherit prototypical Array methods,
   // javascript is weird like this...
@@ -166,8 +174,9 @@ function render() {
   var translationMatrix = getTranslationMatrix();
   var rotationMatrix = getRotationMatrix();
   var scaleMatrix = getScaleMatrix();
+  var projectionMatrix = getProjectionMatrix();
   // multiply the matrices
-  var resultMatrix = matrixMultiply(scaleMatrix, rotationMatrix, translationMatrix);
+  var resultMatrix = matrixMultiply(scaleMatrix, rotationMatrix, translationMatrix, projectionMatrix);
   // set the matrix
   gl.uniformMatrix3fv(program.matrix, false, resultMatrix);
   // draw
@@ -227,18 +236,15 @@ function setupWebGL() {
   program.position = gl.getAttribLocation(program, 'a_position');
   // uniforms
   program.color = gl.getUniformLocation(program, 'color');
-  program.resolution = gl.getUniformLocation(program, 'resolution');
   program.matrix = gl.getUniformLocation(program, 'matrix');
   // assign data
   gl.enableVertexAttribArray(program.position);
   gl.vertexAttribPointer(program.position, 2, gl.FLOAT, false, 0, 0);
   gl.uniform4fv(program.color, [1, 1, 1, 1.0]);
-  gl.uniform2f(program.resolution, canvas.width, canvas.height);
 
 
   /* Draw Shit
   ** ************************ */
-  // gl.drawArrays(gl.TRIANGLES, 0, 9);
   render();
 }
 

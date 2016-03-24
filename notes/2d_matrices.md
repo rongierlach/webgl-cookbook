@@ -1,6 +1,6 @@
 From <a href="http://webglfundamentals.org/webgl/lessons/webgl-2d-matrices.html">WebGL Fundamentals</a>
 
-Matrices
+2D Matrices
 ========
 ## Transformations
 Each transformation (translation, rotation, scale) requires changes to the shader.  

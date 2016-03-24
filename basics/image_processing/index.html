@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <title>Basics</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+
+    <!-- VERTEX SHADER -->
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      // attributes
+      attribute vec2 a_position;
+      attribute vec2 a_texture_coordinate;
+      // uniforms
+      uniform mat3 u_matrix;
+      // varyings
+      varying vec2 v_texture_coordinate;
+
+      void main() {
+        // multiply the position by the matrix
+        vec2 position = (u_matrix * vec3(a_position, 1)).xy;
+
+        gl_Position = vec4(position, 0, 1);
+        // pass the texture_coordinate to the fragment shader
+        // the GPU will interpolate this value between points
+        v_texture_coordinate = a_texture_coordinate;
+      }
+    </script>
+
+    <!-- FRAGMENT SHADER -->
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+      // the texture
+      uniform sampler2D u_image;
+      // the texture_coordinates passed in from the vertex shader
+      varying vec2 v_texture_coordinate;
+
+      void main() {
+        // Look up a color from the texture
+         gl_FragColor = texture2D(u_image, v_texture_coordinate);
+      }
+    </script>
+
+    <!-- MAIN SCRIPT -->
+    <script src="./script.js"></script>
+  </body>
+</html>

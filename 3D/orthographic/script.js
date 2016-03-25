@@ -4,7 +4,7 @@ window.onload = main;
 var canvas, gl;
 // transforms
 var translation = {x: 0, y: 0, z: 0};
-var rotation    = {x: 0, y: 0, z: 0};
+var rotation    = {x: -10, y: 25, z: 0};
 var scale       = {x: 1, y: 1, z: 1};
 
 function main() {
@@ -14,7 +14,7 @@ function main() {
 }
 
 function render() {
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   // compute matrices
   var scale_matrix = getScaleMatrix();
   var rotation_matrix_x = getRotationMatrixX();
@@ -33,7 +33,7 @@ function render() {
   );
   // set the matrix
   gl.uniformMatrix4fv(program.matrix, false, result_matrix);
-  gl.drawArrays(gl.TRIANGLES, 0, 9);
+  gl.drawArrays(gl.TRIANGLES, 0, 48);
 }
 
 function setupWebGL() {
@@ -45,6 +45,10 @@ function setupWebGL() {
   document.body.appendChild(canvas);
   gl = canvas.getContext("webgl");
 
+  gl.enable(gl.CULL_FACE);
+  gl.enable(gl.DEPTH_TEST);
+
+
   /* Clear Color
   ** ************************ */
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -53,12 +57,12 @@ function setupWebGL() {
   /* Shader Setup
   ** ************************ */
   // Vertex Shader
-  var v_shader       = gl.createShader(gl.VERTEX_SHADER);
+  var v_shader = gl.createShader(gl.VERTEX_SHADER);
   var v_shader_source = document.getElementById("vertex-shader").text;
   gl.shaderSource(v_shader, v_shader_source);
   gl.compileShader(v_shader);
   // Fragment Shader
-  var f_shader       = gl.createShader(gl.FRAGMENT_SHADER);
+  var f_shader = gl.createShader(gl.FRAGMENT_SHADER);
   var f_shader_source = document.getElementById("fragment-shader").text;
   gl.shaderSource(f_shader, f_shader_source);
   gl.compileShader(f_shader);
@@ -75,20 +79,27 @@ function setupWebGL() {
   ** ************************ */
   // attributes
   program.position = gl.getAttribLocation(program, 'a_position');
+  program.color = gl.getAttribLocation(program, 'a_color');
   // uniforms
   program.matrix = gl.getUniformLocation(program, 'u_matrix');
-  program.color = gl.getUniformLocation(program, 'color');
-  // assign data
-  gl.uniform4fv(program.color, [1, 1, 1, 1]);
 
   /* Buffers
   ** ************************ */
+  // geometry buffer
   geometry_buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, geometry_buffer);
+  // fill buffer w/ geometry
   gl.enableVertexAttribArray(program.position);
   gl.vertexAttribPointer(program.position, 3, gl.FLOAT, false, 0, 0);
-  // fill buffer
   setGeometry();
+  // color buffer
+  color_buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+  // fill buffer w/ colors
+  gl.enableVertexAttribArray(program.color);
+  gl.vertexAttribPointer(program.color, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+  setColors();
+
 
   /* Draw Shit
   ** ************************ */
@@ -127,26 +138,96 @@ function setInputHandler(transformation, axis) {
   }
 }
 
-function setGeometry(x, y, side_length=200) {
+function setGeometry(x, y, z, side_length=500) {
   if (!x) { x = canvas.width / 2 };
   if (!y) { y = canvas.height / 2 };
+  if (!z) { z = 400 };
   var p = new Pentagon(side_length);
   var points = p.calculatePoints(x, y);
   var vertices = new Float32Array([
+    // Front Face
     // abc
     points.a.x, points.a.y, 0,
-    points.b.x, points.b.y, 0,
     points.c.x, points.c.y, 0,
-    // abd
-    points.a.x, points.a.y, 0,
     points.b.x, points.b.y, 0,
+    // acd
+    points.a.x, points.a.y, 0,
     points.d.x, points.d.y, 0,
-    // abe
-    points.a.x, points.a.y, 0,
     points.c.x, points.c.y, 0,
-    points.e.x, points.e.y, 0
+    // ade
+    points.a.x, points.a.y, 0,
+    points.e.x, points.e.y, 0,
+    points.d.x, points.d.y, 0,
+    // Rear Face
+    // abc
+    points.a.x, points.a.y, z,
+    points.b.x, points.b.y, z,
+    points.c.x, points.c.y, z,
+    // acd
+    points.a.x, points.a.y, z,
+    points.c.x, points.c.y, z,
+    points.d.x, points.d.y, z,
+    // ade
+    points.a.x, points.a.y, z,
+    points.d.x, points.d.y, z,
+    points.e.x, points.e.y, z,
+    // Sides
+    // ab
+    points.a.x, points.a.y, 0,
+    points.b.x, points.b.y, 0,
+    points.a.x, points.a.y, z,
+    points.b.x, points.b.y, z,
+    points.a.x, points.a.y, z,
+    points.b.x, points.b.y, 0,
+    // bc
+    points.b.x, points.b.y, 0,
+    points.c.x, points.c.y, 0,
+    points.b.x, points.b.y, z,
+    points.c.x, points.c.y, z,
+    points.b.x, points.b.y, z,
+    points.c.x, points.c.y, 0,
+    // cd
+    points.c.x, points.c.y, 0,
+    points.d.x, points.d.y, 0,
+    points.c.x, points.c.y, z,
+    points.d.x, points.d.y, z,
+    points.c.x, points.c.y, z,
+    points.d.x, points.d.y, 0,
+    // de
+    points.d.x, points.d.y, 0,
+    points.e.x, points.e.y, 0,
+    points.d.x, points.d.y, z,
+    points.e.x, points.e.y, z,
+    points.d.x, points.d.y, z,
+    points.e.x, points.e.y, 0,
+    // ea
+    points.e.x, points.e.y, 0,
+    points.a.x, points.a.y, 0,
+    points.e.x, points.e.y, z,
+    points.a.x, points.a.y, z,
+    points.e.x, points.e.y, z,
+    points.a.x, points.a.y, 0
   ]);
   gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+}
+
+function setColors() {
+  var white = [255, 255, 255];
+  var grey = [122, 122, 122];
+  var red = [255, 0, 0];
+  var repeatArray = function(arr, times) {
+    var repeated = [];
+    for (var i = 0; i < times; i++) {
+      repeated = repeated.concat(arr);
+    }
+    return repeated;
+  }
+  var front_face = repeatArray(white, 9);
+  var rear_face = repeatArray(white, 9);
+  var faces = front_face.concat(rear_face);
+  var sides = repeatArray(repeatArray(red, 6).concat(repeatArray(grey, 6)), 2).concat(repeatArray(red, 6));
+  var colors = new Uint8Array( faces.concat(sides) );
+  gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
 }
 
 /* Classes
@@ -163,14 +244,20 @@ class Pentagon {
 
 // Helper to determine vertice locations
 Pentagon.prototype.calculatePoints = function (x, y) {
+  /* Points go clockwise from 12 'o clock
+  //     A
+  //  E / \ B
+  //   |   |
+  //  D --- C
+  */
   var s = this.s, r = this.r, h = this.h, k = this.k, c = this.c;
   return {
     a: { x: x,         y: y - r },
-    b: { x: x - s / 2, y: y + k },
+    b: { x: x + c / 2, y: y - sqrt(sq(r) - sq(c / 2)) },
     c: { x: x + s / 2, y: y + k },
-    d: { x: x - c / 2, y: y - sqrt(sq(r) - sq(c / 2)) },
-    e: { x: x + c / 2, y: y - sqrt(sq(r) - sq(c / 2)) },
-    f: { x: x,         y: y }
+    d: { x: x - s / 2, y: y + k },
+    e: { x: x - c / 2, y: y - sqrt(sq(r) - sq(c / 2)) },
+    f: { x: x,         y: y } // center
   };
 };
 
@@ -184,7 +271,7 @@ function degToRad(deg) { return deg * Math.PI / 180; }
 function getProjectionMatrix() {
   var w = canvas.width;
   var h = canvas.height;
-  var d = 200; // depth
+  var d = 1000; // depth
   return [
     2/w,  0.0, 0.0, 0.0,
     0.0, -2/h, 0.0, 0.0,

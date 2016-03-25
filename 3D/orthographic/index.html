@@ -19,14 +19,14 @@
       <br/>
       <br/>
       <b>Rotation</b><br/>
-      <label class="value">x: <span id="x-rotation-label">0</span>&deg;</label><br/>
-      <label>0&deg;</label><input id="x-rotation-slider" type="range" min="0" max="360" value="0"/><label>360&deg;</label>
+      <label class="value">x: <span id="x-rotation-label">-10</span>&deg;</label><br/>
+      <label>-180&deg;</label><input id="x-rotation-slider" type="range" min="-180" max="180" value="-10"/><label>180&deg;</label>
       <br/>
-      <label class="value">y: <span id="y-rotation-label">0</span>&deg;</label><br/>
-      <label>0&deg;</label><input id="y-rotation-slider" type="range" min="0" max="360" value="0"/><label>360&deg;</label>
+      <label class="value">y: <span id="y-rotation-label">25</span>&deg;</label><br/>
+      <label>-180&deg;</label><input id="y-rotation-slider" type="range" min="-180" max="180" value="25"/><label>180&deg;</label>
       <br/>
       <label class="value">z: <span id="z-rotation-label">0</span>&deg;</label><br/>
-      <label>0&deg;</label><input id="z-rotation-slider" type="range" min="0" max="360" value="0"/><label>360&deg;</label>
+      <label>-180&deg;</label><input id="z-rotation-slider" type="range" min="-180" max="180" value="0"/><label>180&deg;</label>
       <!-- scale -->
       <br/>
       <br/>
@@ -43,21 +43,25 @@
     <!-- VERTEX SHADER -->
     <script id="vertex-shader" type="x-shader/x-vertex">
       attribute vec4 a_position;
+      attribute vec4 a_color;
       uniform mat4 u_matrix;
+      varying vec4 v_color;
 
       void main() {
         // multiply the position by the matrix
         gl_Position = u_matrix * a_position;
+        // pass the color to the fragment shader
+        v_color = a_color;
       }
     </script>
 
     <!-- FRAGMENT SHADER -->
     <script id="fragment-shader" type="x-shader/x-fragment">
       precision mediump float;
-      uniform vec4 color;
+      varying vec4 v_color;
 
       void main() {
-         gl_FragColor = color;
+         gl_FragColor = v_color;
       }
     </script>
 

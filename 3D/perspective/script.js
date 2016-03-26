@@ -6,7 +6,7 @@ var canvas, gl;
 var translation = {x: 0, y: 0, z: 0};
 var rotation    = {x: -10, y: 25, z: 0};
 var scale       = {x: 1, y: 1, z: 1};
-var depth_factor = 0.0;
+var perspective = {fov: 30, near: 0, far: 400};
 
 function main() {
   setupWebGL();
@@ -22,7 +22,7 @@ function render() {
   var rotation_matrix_y = getRotationMatrixY();
   var rotation_matrix_z = getRotationMatrixZ();
   var translation_matrix = getTranslationMatrix();
-  var projection_matrix = getProjectionMatrix();
+  // var projection_matrix = getProjectionMatrix();
   var perspective_matrix = getPerspectiveMatrix();
   // multiply the matrices
   var result_matrix = matrixMultiply(
@@ -31,7 +31,7 @@ function render() {
     rotation_matrix_y,
     rotation_matrix_z,
     translation_matrix,
-    projection_matrix,
+    // projection_matrix,
     perspective_matrix
   );
   // set the matrix
@@ -112,6 +112,7 @@ function setupWebGL() {
 function setupControls() {
   var transforms = ['translation', 'rotation', 'scale'];
   var axes = ['x', 'y', 'z'];
+  var perspective_attrs = ['fov', 'near', 'far'];
   var funcs = [];
   // No block scope in es5 got me down :(
   // Assign functions by iterating over transforms and axes
@@ -122,21 +123,19 @@ function setupControls() {
       funcs.push(setInputHandler(transformation, axis));
     }
   }
+  for (i = 0; i < perspective_attrs.length; i++) {
+    var attr = perspective_attrs[i];
+    funcs.push(setInputHandler('perspective', attr));
+  }
   // then run 'em!
   for (i = 0; i < funcs.length; i++) funcs[i]();
-  // setup depth factor
-  var slider = document.getElementById('depth-slider');
-  var label = document.getElementById('depth-label');
-  slider.oninput = function(e) {
-    window.depth_factor = label.innerHTML = parseFloat(this.value);
-    render();
-  }
 }
 
 function setInputHandler(transformation, axis) {
   return function () {
     var slider_id = [axis, transformation, 'slider'].join('-');
     var label_id = [axis, transformation, 'label'].join('-');
+    console.log(slider_id + " " + label_id);
     var slider = document.getElementById(slider_id);
     var label = document.getElementById(label_id);
     slider.oninput = function(e) {
@@ -340,11 +339,17 @@ function getScaleMatrix() {
   ];
 }
 function getPerspectiveMatrix() {
+  var fov_rad = degToRad(perspective.fov);
+  var aspect = canvas.width / canvas.height;
+  var near = perspective.near;
+  var far = perspective.far;
+  var f = Math.tan(Math.PI * 0.5 - 0.5 * fov_rad);
+  var range_inv = 1.0 / (near - far);
   return [
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, depth_factor,
-    0, 0, 0, 1
+    f / aspect, 0, 0, 0,
+    0, f, 0, 0,
+    0, 0, (near + far) * range_inv, -1,
+    0, 0, near * far * range_inv * 2, 0
   ];
 }
 function getIdentityMatrix() {

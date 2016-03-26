@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <title>Orthographic - 3D</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <form>
+      <!-- translation -->
+      <b>Translation</b><br/>
+      <label class="value">x: <span id="x-translation-label">0</span></label><br/>
+      <label>-200</label><input id="x-translation-slider" type="range" min="-200" max="200" value="0"/><label>+200</label>
+      <br/>
+      <label class="value">y: <span id="y-translation-label">0</span></label><br/>
+      <label>-150</label><input id="y-translation-slider" type="range" min="-150" max="150" value="0"/><label>+150</label>
+      <br/>
+      <label class="value">z: <span id="z-translation-label">0</span></label><br/>
+      <label>-200</label><input id="z-translation-slider" type="range" min="-200" max="200" value="0"/><label>+200</label>
+      <!-- rotation -->
+      <br/>
+      <br/>
+      <b>Rotation</b><br/>
+      <label class="value">x: <span id="x-rotation-label">-10</span>&deg;</label><br/>
+      <label>-180&deg;</label><input id="x-rotation-slider" type="range" min="-180" max="180" value="-10"/><label>180&deg;</label>
+      <br/>
+      <label class="value">y: <span id="y-rotation-label">25</span>&deg;</label><br/>
+      <label>-180&deg;</label><input id="y-rotation-slider" type="range" min="-180" max="180" value="25"/><label>180&deg;</label>
+      <br/>
+      <label class="value">z: <span id="z-rotation-label">0</span>&deg;</label><br/>
+      <label>-180&deg;</label><input id="z-rotation-slider" type="range" min="-180" max="180" value="0"/><label>180&deg;</label>
+      <!-- scale -->
+      <br/>
+      <br/>
+      <b>Scale</b><br/>
+      <label class="value">x: <span id="x-scale-label">0</span></label><br/>
+      <label>-3</label><input id="x-scale-slider" type="range" min="-3" max="3" step="0.01" value="1"/><label>3</label>
+      <br/>
+      <label class="value">y: <span id="y-scale-label">0</span></label><br/>
+      <label>-3</label><input id="y-scale-slider" type="range" min="-3" max="3" step="0.01" value="1"/><label>3</label>
+      <br/>
+      <label class="value">z: <span id="z-scale-label">0</span></label><br/>
+      <label>-3</label><input id="z-scale-slider" type="range" min="-3" max="3" step="0.01" value="1"/><label>3</label>
+      <!-- depth factor -->
+      <br/>
+      <br/>
+      <b>Depth Factor</b><br/>
+      <label class="value">factor: <span id="depth-label">0</span></label><br/>
+      <label>0</label><input id="depth-slider" type="range" min="0" max="2" step="0.001" value="0"/><label>2</label>
+    </form>
+    <!-- VERTEX SHADER -->
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      attribute vec4 a_position;
+      attribute vec4 a_color;
+      uniform mat4 u_matrix;
+      uniform float u_depth_factor;
+      varying vec4 v_color;
+
+      void main() {
+        // multiply the position by the matrix
+        gl_Position = u_matrix * a_position;
+        // pass the color to the fragment shader
+        v_color = a_color;
+      }
+    </script>
+
+    <!-- FRAGMENT SHADER -->
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+      varying vec4 v_color;
+
+      void main() {
+         gl_FragColor = v_color;
+      }
+    </script>
+
+    <!-- MAIN SCRIPT -->
+    <script src="./script.js"></script>
+  </body>
+</html>

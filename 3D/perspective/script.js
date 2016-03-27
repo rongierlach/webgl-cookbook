@@ -6,7 +6,7 @@ var canvas, gl;
 var translation = {x: 0, y: 0, z: 0};
 var rotation    = {x: -10, y: 25, z: 0};
 var scale       = {x: 1, y: 1, z: 1};
-var perspective = {fov: 30, near: 0, far: 400};
+var perspective = {fov: 60, near: 0, far: 400};
 
 function main() {
   setupWebGL();
@@ -22,7 +22,7 @@ function render() {
   var rotation_matrix_y = getRotationMatrixY();
   var rotation_matrix_z = getRotationMatrixZ();
   var translation_matrix = getTranslationMatrix();
-  // var projection_matrix = getProjectionMatrix();
+  var projection_matrix = getProjectionMatrix();
   var perspective_matrix = getPerspectiveMatrix();
   // multiply the matrices
   var result_matrix = matrixMultiply(
@@ -31,7 +31,7 @@ function render() {
     rotation_matrix_y,
     rotation_matrix_z,
     translation_matrix,
-    // projection_matrix,
+    projection_matrix,
     perspective_matrix
   );
   // set the matrix
@@ -148,23 +148,23 @@ function setInputHandler(transformation, axis) {
 function setGeometry(x, y, z, side_length=500) {
   if (!x) { x = canvas.width / 2 };
   if (!y) { y = canvas.height / 2 };
-  if (!z) { z = 400 };
+  if (!z) { z = 200 };
   var p = new Pentagon(side_length);
   var points = p.calculatePoints(x, y);
   var vertices = new Float32Array([
     // Front Face
     // abc
-    points.a.x, points.a.y, 0,
-    points.c.x, points.c.y, 0,
-    points.b.x, points.b.y, 0,
+    points.a.x, points.a.y, 100,
+    points.c.x, points.c.y, 100,
+    points.b.x, points.b.y, 100,
     // acd
-    points.a.x, points.a.y, 0,
-    points.d.x, points.d.y, 0,
-    points.c.x, points.c.y, 0,
+    points.a.x, points.a.y, 100,
+    points.d.x, points.d.y, 100,
+    points.c.x, points.c.y, 100,
     // ade
-    points.a.x, points.a.y, 0,
-    points.e.x, points.e.y, 0,
-    points.d.x, points.d.y, 0,
+    points.a.x, points.a.y, 100,
+    points.e.x, points.e.y, 100,
+    points.d.x, points.d.y, 100,
     // Rear Face
     // abc
     points.a.x, points.a.y, z,
@@ -180,40 +180,40 @@ function setGeometry(x, y, z, side_length=500) {
     points.e.x, points.e.y, z,
     // Sides
     // ab
-    points.a.x, points.a.y, 0,
-    points.b.x, points.b.y, 0,
+    points.a.x, points.a.y, 100,
+    points.b.x, points.b.y, 100,
     points.a.x, points.a.y, z,
     points.b.x, points.b.y, z,
     points.a.x, points.a.y, z,
-    points.b.x, points.b.y, 0,
+    points.b.x, points.b.y, 100,
     // bc
-    points.b.x, points.b.y, 0,
-    points.c.x, points.c.y, 0,
+    points.b.x, points.b.y, 100,
+    points.c.x, points.c.y, 100,
     points.b.x, points.b.y, z,
     points.c.x, points.c.y, z,
     points.b.x, points.b.y, z,
-    points.c.x, points.c.y, 0,
+    points.c.x, points.c.y, 100,
     // cd
-    points.c.x, points.c.y, 0,
-    points.d.x, points.d.y, 0,
+    points.c.x, points.c.y, 100,
+    points.d.x, points.d.y, 100,
     points.c.x, points.c.y, z,
     points.d.x, points.d.y, z,
     points.c.x, points.c.y, z,
-    points.d.x, points.d.y, 0,
+    points.d.x, points.d.y, 100,
     // de
-    points.d.x, points.d.y, 0,
-    points.e.x, points.e.y, 0,
+    points.d.x, points.d.y, 100,
+    points.e.x, points.e.y, 100,
     points.d.x, points.d.y, z,
     points.e.x, points.e.y, z,
     points.d.x, points.d.y, z,
-    points.e.x, points.e.y, 0,
+    points.e.x, points.e.y, 100,
     // ea
-    points.e.x, points.e.y, 0,
-    points.a.x, points.a.y, 0,
+    points.e.x, points.e.y, 100,
+    points.a.x, points.a.y, 100,
     points.e.x, points.e.y, z,
     points.a.x, points.a.y, z,
     points.e.x, points.e.y, z,
-    points.a.x, points.a.y, 0
+    points.a.x, points.a.y, 100
   ]);
   gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 }

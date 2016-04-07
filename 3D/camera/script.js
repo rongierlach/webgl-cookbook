@@ -7,6 +7,7 @@ var translation = {x: 0, y: 0, z: 0};
 var rotation    = {x: -10, y: 25, z: 0};
 var scale       = {x: 1, y: 1, z: 1};
 var perspective = {fov: 60, near: 0, far: 400};
+var camera      = {rotation: 0}
 
 function main() {
   setupWebGL();
@@ -15,22 +16,46 @@ function main() {
 }
 
 function render() {
+  // camera / drawing vars
+  var num_pentagons = 5;
+  var radius = 200;
+
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  // compute matrices
-  var scale_matrix = getScaleMatrix();
-  var rotation_matrix_x = getRotationMatrixX();
+
+  // compute camera matrix
+  var camera_matrix = makeTranslation(0, 0, radius * 1.5);
   var rotation_matrix_y = getRotationMatrixY();
-  var rotation_matrix_z = getRotationMatrixZ();
+  var camera_matrix = matrixMultiply(camera_matrix, rotation_matrix_y);
+
+  // make a view matrix from the camera matrix
+  var viewMatrix = makeInverse(camera_matrix);
+
+  for (var i = 0; i < num_pentagons; ++i) {
+    var angle = i * Math.PI * 2 / num_pentagons;
+    var x = Math.cos(angle) * radius;
+    var z = Math.sin(angle) * radius;
+    var translation_matrix = [
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      x, 0, z, 1
+    ]
+
+  }
+
+  // var scale_matrix = getScaleMatrix();
+  // var rotation_matrix_x = getRotationMatrixX();
+  // var rotation_matrix_z = getRotationMatrixZ();
   var translation_matrix = getTranslationMatrix();
   var projection_matrix = getProjectionMatrix();
   var perspective_matrix = getPerspectiveMatrix();
   // multiply the matrices
   var result_matrix = matrixMultiply(
-    scale_matrix,
-    rotation_matrix_x,
-    rotation_matrix_y,
-    rotation_matrix_z,
-    translation_matrix,
+    // scale_matrix,
+    // rotation_matrix_x,
+    // rotation_matrix_y,
+    // rotation_matrix_z,
+    // translation_matrix,
     projection_matrix,
     perspective_matrix
   );
@@ -110,25 +135,15 @@ function setupWebGL() {
 }
 
 function setupControls() {
-  var transforms = ['translation', 'rotation', 'scale'];
-  var axes = ['x', 'y', 'z'];
-  var perspective_attrs = ['fov', 'near', 'far'];
-  var funcs = [];
-  // No block scope in es5 got me down :(
-  // Assign functions by iterating over transforms and axes
-  for (var i = 0; i < transforms.length; i++) {
-    var transformation = transforms[i];
-    for (var j = 0; j < axes.length; j++) {
-      var axis = axes[j];
-      funcs.push(setInputHandler(transformation, axis));
-    }
+  var slider_id = ['y', 'rotation', 'slider'].join('-');
+  var label_id = ['y', 'rotation', 'label'].join('-');
+  var slider = document.getElementById(slider_id);
+  var label = document.getElementById(label_id);
+
+  slider.oninput = function(e) {
+    window.camera.rotation = label.innerHTML = parseFloat(this.value);
+    render();
   }
-  for (i = 0; i < perspective_attrs.length; i++) {
-    var attr = perspective_attrs[i];
-    funcs.push(setInputHandler('perspective', attr));
-  }
-  // then run 'em!
-  for (i = 0; i < funcs.length; i++) funcs[i]();
 }
 
 function setInputHandler(transformation, axis) {
@@ -297,6 +312,14 @@ function getTranslationMatrix() {
     tx, ty, tz, 1
   ];
 }
+function makeTranslation(tx, ty, tz) {
+  return [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+  tx, ty, tz, 1
+  ];
+}
 function getRotationMatrixX() {
   var c = Math.cos( degToRad(rotation.x) );
   var s = Math.sin( degToRad(rotation.x) );
@@ -359,6 +382,35 @@ function getIdentityMatrix() {
     0, 0, 1, 0,
     0, 0, 0, 1
   ];
+}
+// https://github.com/evanw/lightgl.js/blob/master/src/matrix.js
+function makeInverse(matrix, result) {
+  result = result || new Array(16);
+  var m = matrix, r = result;
+
+  r[0] = m[5]*m[10]*m[15] - m[5]*m[14]*m[11] - m[6]*m[9]*m[15] + m[6]*m[13]*m[11] + m[7]*m[9]*m[14] - m[7]*m[13]*m[10];
+  r[1] = -m[1]*m[10]*m[15] + m[1]*m[14]*m[11] + m[2]*m[9]*m[15] - m[2]*m[13]*m[11] - m[3]*m[9]*m[14] + m[3]*m[13]*m[10];
+  r[2] = m[1]*m[6]*m[15] - m[1]*m[14]*m[7] - m[2]*m[5]*m[15] + m[2]*m[13]*m[7] + m[3]*m[5]*m[14] - m[3]*m[13]*m[6];
+  r[3] = -m[1]*m[6]*m[11] + m[1]*m[10]*m[7] + m[2]*m[5]*m[11] - m[2]*m[9]*m[7] - m[3]*m[5]*m[10] + m[3]*m[9]*m[6];
+
+  r[4] = -m[4]*m[10]*m[15] + m[4]*m[14]*m[11] + m[6]*m[8]*m[15] - m[6]*m[12]*m[11] - m[7]*m[8]*m[14] + m[7]*m[12]*m[10];
+  r[5] = m[0]*m[10]*m[15] - m[0]*m[14]*m[11] - m[2]*m[8]*m[15] + m[2]*m[12]*m[11] + m[3]*m[8]*m[14] - m[3]*m[12]*m[10];
+  r[6] = -m[0]*m[6]*m[15] + m[0]*m[14]*m[7] + m[2]*m[4]*m[15] - m[2]*m[12]*m[7] - m[3]*m[4]*m[14] + m[3]*m[12]*m[6];
+  r[7] = m[0]*m[6]*m[11] - m[0]*m[10]*m[7] - m[2]*m[4]*m[11] + m[2]*m[8]*m[7] + m[3]*m[4]*m[10] - m[3]*m[8]*m[6];
+
+  r[8] = m[4]*m[9]*m[15] - m[4]*m[13]*m[11] - m[5]*m[8]*m[15] + m[5]*m[12]*m[11] + m[7]*m[8]*m[13] - m[7]*m[12]*m[9];
+  r[9] = -m[0]*m[9]*m[15] + m[0]*m[13]*m[11] + m[1]*m[8]*m[15] - m[1]*m[12]*m[11] - m[3]*m[8]*m[13] + m[3]*m[12]*m[9];
+  r[10] = m[0]*m[5]*m[15] - m[0]*m[13]*m[7] - m[1]*m[4]*m[15] + m[1]*m[12]*m[7] + m[3]*m[4]*m[13] - m[3]*m[12]*m[5];
+  r[11] = -m[0]*m[5]*m[11] + m[0]*m[9]*m[7] + m[1]*m[4]*m[11] - m[1]*m[8]*m[7] - m[3]*m[4]*m[9] + m[3]*m[8]*m[5];
+
+  r[12] = -m[4]*m[9]*m[14] + m[4]*m[13]*m[10] + m[5]*m[8]*m[14] - m[5]*m[12]*m[10] - m[6]*m[8]*m[13] + m[6]*m[12]*m[9];
+  r[13] = m[0]*m[9]*m[14] - m[0]*m[13]*m[10] - m[1]*m[8]*m[14] + m[1]*m[12]*m[10] + m[2]*m[8]*m[13] - m[2]*m[12]*m[9];
+  r[14] = -m[0]*m[5]*m[14] + m[0]*m[13]*m[6] + m[1]*m[4]*m[14] - m[1]*m[12]*m[6] - m[2]*m[4]*m[13] + m[2]*m[12]*m[5];
+  r[15] = m[0]*m[5]*m[10] - m[0]*m[9]*m[6] - m[1]*m[4]*m[10] + m[1]*m[8]*m[6] + m[2]*m[4]*m[9] - m[2]*m[8]*m[5];
+
+  var det = m[0]*r[0] + m[1]*r[4] + m[2]*r[8] + m[3]*r[12];
+  for (var i = 0; i < 16; i++) r[i] /= det;
+  return result;
 }
 function matrixMultiply(/* args */) {
   // *arguments* does not inherit prototypical Array methods,
